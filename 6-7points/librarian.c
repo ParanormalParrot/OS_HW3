@@ -8,9 +8,6 @@
 #include <time.h>
 
 
-#define SHM_NAME "/shared_memory"
-#define SEM_NAME "/semaphore"
-
 #define BUFFER_SIZE 1024
 
 #define ARRAY_SIZE 1000
@@ -43,12 +40,11 @@ int main(int argc, char *argv[]) {
     }
     signal(SIGINT, exit_program);
 
-    ssize_t read_res;
+    ssize_t read_message;
     int sockets[number_of_students];
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
-    // Создание серверного сокета
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("Error while creating socket\n");
         exit_program();
@@ -58,23 +54,20 @@ int main(int argc, char *argv[]) {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
 
-    // Привязка серверного сокета к IP-адресу и порту
     if (bind(server_socket, (struct sockaddr *) &address, sizeof(address)) < 0) {
         perror("Error while binding socket\n");
         exit_program();
     }
 
-    // Начало прослушивания входящих подключений
     if (listen(server_socket, number_of_students) < 0) {
         perror("Error in listen function\n");
         exit_program();
     }
 
     printf("Waiting for presenter...\n");
-    int presenter_sock;
+    int presenter_socket;
     char buffer[BUFFER_SIZE];
-    // Принятие входящего подключения от presenter
-    if ((presenter_sock = accept(server_socket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+    if ((presenter_socket = accept(server_socket, (struct sockaddr *) &address, (socklen_t * ) & addrlen)) < 0) {
         printf("Error in accept() function for presenter\n");
         exit_program();
     }
@@ -93,8 +86,6 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < m * n * k; ++i) {
         books[i] = rand() % 1000;
     }
-    int student_index = 0;
-    int row_number = 0;
     int row_size = n * k;
     for (int i = 0; i < m; ++i) {
         int row[n * k];
@@ -103,15 +94,11 @@ int main(int argc, char *argv[]) {
         }
         send(sockets[i % number_of_students], &n, sizeof(n), 0);
         send(sockets[i % number_of_students], &k, sizeof(k), 0);
-        send(sockets[i % number_of_students], &row_number, sizeof(k), 0);
-        for (int i = 0; i < n*k; ++i) {
-            printf("%d ", row[i]);
-        }
-        send(sockets[i % number_of_students], row, n*k*sizeof(int), 0);
-        recv(sockets[i % number_of_students], row, n*k*sizeof(int), 0);
-        for (int i = 0; i < n*k; ++i) {
-            printf("%d ", row[i]);
-        }
+        send(sockets[i % number_of_students], &i, sizeof(i), 0);
+        send(sockets[i % number_of_students], row, n * k * sizeof(int), 0);
+        recv(sockets[i % number_of_students], row, n * k * sizeof(int), 0);
+        recv(sockets[i % number_of_students], buffer, sizeof(buffer), 0);
+        send(presenter_socket, buffer, sizeof(buffer), 0);
         for (int j = 0; j < row_size; ++j) {
             books[j + i * n * k] = row[j];
         }
@@ -130,25 +117,22 @@ int main(int argc, char *argv[]) {
         books[min] = tmp;
     }
 
-
     printf("The librarian have completed the catalogue.\n");
-    sprintf(buffer,"The librarian have completed the catalogue.\n");
-    for (
-            int i = 0;
-            i < m * n * k;
-            ++i) {
+    sprintf(buffer, "The librarian have completed the catalogue.\n");
+    for (int i = 0; i < m * n * k; ++i) {
         printf("Book %d at the position %d of the bookshelf %d in the row %d.\n", books[i], (i % k) + 1,
                (i / k % n) + 1, (i / k / n) + 1);
-        sprintf("Book %d at the position %d of the bookshelf %d in the row %d.\n", books[i], (i % k) + 1,
-               (i / k % n) + 1, (i / k / n) + 1);
-
+        sprintf(buffer, "Book %d at the position %d of the bookshelf %d in the row %d.\n", books[i], (i % k) + 1,
+                (i / k % n) + 1, (i / k / n) + 1);
+        send(presenter_socket, &buffer, sizeof(buffer), 0);
     }
-
 
     int exit_code = -1;
     for (int i = 0; i < number_of_students; ++i) {
-        // Отправка кода клиенту для завершения работы программы
         send(sockets[i], &exit_code, sizeof(int), 0);
     }
+
+    sprintf(buffer, "stop");
+    send(presenter_socket, &buffer, sizeof(buffer), 0);
     exit_program();
 }

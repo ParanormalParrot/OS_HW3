@@ -52,20 +52,16 @@ int main(int argc, char *argv[]) {
             perror("Recv failed");
             exit(1);
         }
-        if (recv(client_socket, &row_index, sizeof(k), 0) < 0) {
+        if (recv(client_socket, &row_index, sizeof(row_index), 0) < 0) {
             perror("Recv failed");
             exit(1);
         }
 
-        int row[1000];
+        int row[n * k];
         if (recv(client_socket, row, n * k * sizeof(int), 0) < 0) {
             perror("Recv failed");
             exit(1);
         }
-        for (int i = 0; i < n * k; ++i) {
-            printf("%d ", row[i]);
-        }
-
         // Сортировка выбором
         for (int j = 0; j < n * k - 1; ++j) {
             int min = j;
@@ -81,29 +77,19 @@ int main(int argc, char *argv[]) {
                    student_number,
                    row[j],
                    (j % k + 1), (j / n + 1), row_index + 1);
-            sprintf(buffer, "Student %d have inserted book %d at the position %d of the bookshelf %d in a row %d. \n",
-                    student_number,
-                    row[j],
-                    (j % k + 1), (j / n + 1), row_index + 1);
-            send(client_socket, &buffer, sizeof(buffer), 0);
-
-
             usleep(rand() % 10);
-        }
-        for (int i = 0; i < n * k; ++i) {
-            printf("%d ", row[i]);
         }
         if (send(client_socket, row, n * k * sizeof(int), 0) < 0) {
             perror("Send failed");
             exit(1);
         }
         printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n",
-               student_number, row_index);
+               student_number, row_index + 1);
         sprintf(buffer, "Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n",
-                student_number, row_index);
+                student_number, row_index + 1);
         send(client_socket, &buffer, sizeof(buffer), 0);
     }
 
-    close(client_socket);
+    exit_program();
     return 0;
 }

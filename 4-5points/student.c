@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        int row[n * k];
+        int row[n*k];
         if (recv(client_socket, row, n * k * sizeof(int), 0) < 0) {
             perror("Recv failed");
             exit(1);
@@ -82,8 +82,7 @@ int main(int argc, char *argv[]) {
             perror("Send failed");
             exit(1);
         }
-        printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n",
-               student_number, row_index + 1);
+        printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n", student_number, row_index + 1);
     }
 
     close(client_socket);

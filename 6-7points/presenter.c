@@ -27,7 +27,6 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server_address;
     signal(SIGINT, exit_program);
 
-    // Создание клиентского сокета
     if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Error while creating socket\n");
         exit_program();
@@ -36,7 +35,6 @@ int main(int argc, char *argv[]) {
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(atoi(argv[2]));
 
-    // Преобразование IP-адреса из строкового представления в структуру sockaddr_in
     if (inet_pton(AF_INET, argv[1], &server_address.sin_addr) <= 0) {
         perror("Error while converting IP-address\n");
         exit_program();
@@ -51,12 +49,10 @@ int main(int argc, char *argv[]) {
     printf("Connected to the server\n");
 
     char buffer[BUFFER_SIZE];
-    int str_len;
 
     while (1) {
-        // Получение строки для вывода от сервера
         str_len = recv(client_socket, &buffer, sizeof(buffer), 0);
-        if (strcmp(buffer, "break") == 0) {
+        if (strcmp(buffer, "stop") == 0) {
             break;
         }
         printf(buffer);
