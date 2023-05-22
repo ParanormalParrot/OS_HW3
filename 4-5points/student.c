@@ -54,16 +54,11 @@ int main(int argc, char *argv[]) {
             perror("Recv failed");
             exit(1);
         }
-        printf("n: %d\n", n);
-        printf("k: %d\n", k);
 
-        int row[1000];
+        int row[n * k];
         if (recv(client_socket, row, n * k * sizeof(int), 0) < 0) {
             perror("Recv failed");
             exit(1);
-        }
-        for (int i = 0; i < n * k; ++i) {
-            printf("%d ", row[i]);
         }
 
         // Сортировка выбором
@@ -83,15 +78,12 @@ int main(int argc, char *argv[]) {
                    (j % k + 1), (j / n + 1), row_index + 1);
             usleep(rand() % 10);
         }
-        for (int i = 0; i < n * k; ++i) {
-            printf("%d ", row[i]);
-        }
         if (send(client_socket, row, n * k * sizeof(int), 0) < 0) {
             perror("Send failed");
             exit(1);
         }
-        printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n", row_index,
-               student_number);
+        printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n",
+               student_number, row_index + 1);
     }
 
     close(client_socket);

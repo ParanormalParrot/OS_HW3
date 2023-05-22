@@ -13,7 +13,7 @@
 
 #define BUFFER_SIZE 1024
 
-
+#define ARRAY_SIZE 1000
 
 int server_socket;
 int n, m, k, port;

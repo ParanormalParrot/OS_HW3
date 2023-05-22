@@ -82,7 +82,6 @@ int main(int argc, char *argv[]) {
         books[i] = rand() % 1000;
     }
     int student_index = 0;
-    int row_number = 0;
     int row_size = n * k;
     for (int i = 0; i < m; ++i) {
         int row[n * k];
@@ -91,15 +90,9 @@ int main(int argc, char *argv[]) {
         }
         send(sockets[i % number_of_students], &n, sizeof(n), 0);
         send(sockets[i % number_of_students], &k, sizeof(k), 0);
-        send(sockets[i % number_of_students], &row_number, sizeof(k), 0);
-        for (int i = 0; i < n*k; ++i) {
-            printf("%d ", row[i]);
-        }
+        send(sockets[i % number_of_students], &i, sizeof(i), 0);
         send(sockets[i % number_of_students], row, n*k*sizeof(int), 0);
         recv(sockets[i % number_of_students], row, n*k*sizeof(int), 0);
-        for (int i = 0; i < n*k; ++i) {
-            printf("%d ", row[i]);
-        }
         for (int j = 0; j < row_size; ++j) {
             books[j + i * n * k] = row[j];
         }

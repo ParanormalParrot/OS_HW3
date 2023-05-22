@@ -81,10 +81,11 @@ int main(int argc, char *argv[]) {
                    student_number,
                    row[j],
                    (j % k + 1), (j / n + 1), row_index + 1);
-            sprintf(buffer,"Student %d have inserted book %d at the position %d of the bookshelf %d in a row %d. \n",
-                   student_number,
-                   row[j],
-                   (j % k + 1), (j / n + 1), row_index + 1);
+            sprintf(buffer, "Student %d have inserted book %d at the position %d of the bookshelf %d in a row %d. \n",
+                    student_number,
+                    row[j],
+                    (j % k + 1), (j / n + 1), row_index + 1);
+            send(client_socket, &buffer, sizeof(buffer), 0);
 
 
             usleep(rand() % 10);
@@ -96,10 +97,11 @@ int main(int argc, char *argv[]) {
             perror("Send failed");
             exit(1);
         }
-        printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n", row_index,
-               student_number);
-        sprintf(buffer, "Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n", row_index,
-        student_number);
+        printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n",
+               student_number, row_index);
+        sprintf(buffer, "Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n",
+                student_number, row_index);
+        send(client_socket, &buffer, sizeof(buffer), 0);
     }
 
     close(client_socket);

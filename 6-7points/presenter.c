@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+#include <signal.h>
+#include <time.h>
 
 #define BUFFER_SIZE 1024
 
@@ -24,7 +25,6 @@ int main(int argc, char *argv[]) {
     }
 
     struct sockaddr_in server_address;
-
     signal(SIGINT, exit_program);
 
     // Создание клиентского сокета
