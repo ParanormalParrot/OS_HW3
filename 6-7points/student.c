@@ -8,7 +8,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define ARRAY_SIZE 1000
+#define BUFFER_SIZE 1024
+
 int student_number;
 int client_socket;
 
@@ -36,6 +37,7 @@ int main(int argc, char *argv[]) {
         perror("Ошибка соединения");
         exit_program();
     }
+    char buffer[BUFFER_SIZE];
     sleep(1);
     while (1) {
         int n, k, row_index;
@@ -54,8 +56,6 @@ int main(int argc, char *argv[]) {
             perror("Recv failed");
             exit(1);
         }
-        printf("n: %d\n", n);
-        printf("k: %d\n", k);
 
         int row[1000];
         if (recv(client_socket, row, n * k * sizeof(int), 0) < 0) {
@@ -81,6 +81,12 @@ int main(int argc, char *argv[]) {
                    student_number,
                    row[j],
                    (j % k + 1), (j / n + 1), row_index + 1);
+            sprintf(buffer,"Student %d have inserted book %d at the position %d of the bookshelf %d in a row %d. \n",
+                   student_number,
+                   row[j],
+                   (j % k + 1), (j / n + 1), row_index + 1);
+
+
             usleep(rand() % 10);
         }
         for (int i = 0; i < n * k; ++i) {
@@ -92,6 +98,8 @@ int main(int argc, char *argv[]) {
         }
         printf("Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n", row_index,
                student_number);
+        sprintf(buffer, "Student %d have finished sorting subcatalogue for row %d and passed it to the librarian.\n", row_index,
+        student_number);
     }
 
     close(client_socket);

@@ -10,7 +10,9 @@
 
 #define SHM_NAME "/shared_memory"
 #define SEM_NAME "/semaphore"
-#define ARRAY_SIZE 1000
+
+#define BUFFER_SIZE 1024
+
 
 
 int server_socket;
@@ -68,6 +70,16 @@ int main(int argc, char *argv[]) {
         exit_program();
     }
 
+    printf("Waiting for presenter...\n");
+    int presenter_sock;
+    char buffer[BUFFER_SIZE];
+    // Принятие входящего подключения от presenter
+    if ((presenter_sock = accept(server_socket, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+        printf("Error in accept() function for presenter\n");
+        exit_program();
+    }
+    printf("Presenter connected\n");
+
     printf("Librarian is waiting for students...\n");
 
     for (int i = 0; i < number_of_students; ++i) {
@@ -120,11 +132,14 @@ int main(int argc, char *argv[]) {
 
 
     printf("The librarian have completed the catalogue.\n");
+    sprintf(buffer,"The librarian have completed the catalogue.\n");
     for (
             int i = 0;
             i < m * n * k;
             ++i) {
         printf("Book %d at the position %d of the bookshelf %d in the row %d.\n", books[i], (i % k) + 1,
+               (i / k % n) + 1, (i / k / n) + 1);
+        sprintf("Book %d at the position %d of the bookshelf %d in the row %d.\n", books[i], (i % k) + 1,
                (i / k % n) + 1, (i / k / n) + 1);
 
     }
